@@ -34,38 +34,38 @@ HTML_FILE="$REPO_DIR/index.html"
 # These commands are derived from the X thread and the new requests
 echo "Running Shodan commands..."
 
-# Top 50 ISPs in Paraguay
-shodan stats --facets isp:50 country:PY > "$ISP_FILE"
+# Top 50 ISPs in Paraguay (hosting vulnerable devices)
+shodan stats --facets isp:50 country:PY has_vuln:true > "$ISP_FILE"
 
-# Top 50 cities with devices online
-shodan stats --facets city:50 country:PY > "$CITIES_FILE"
+# Top 50 cities with devices online (that are vulnerable)
+shodan stats --facets city:50 country:PY has_vuln:true > "$CITIES_FILE"
 
-# Top 50 vulnerabilities in Paraguay
+# Top 50 vulnerabilities in Paraguay (This command remains unchanged)
 shodan stats --facets vuln:50 country:PY > "$VULNS_FILE"
 
-# Top 50 products (e.g., routers like Mikrotik)
-shodan stats --facets product:50 country:PY > "$PRODUCT_FILE"
+# Top 50 products (that are vulnerable)
+shodan stats --facets product:50 country:PY has_vuln:true > "$PRODUCT_FILE"
 
-# Top 50 operating systems
-shodan stats --facets os:50 country:PY > "$OS_FILE"
+# Top 50 operating systems (on vulnerable devices)
+shodan stats --facets os:50 country:PY has_vuln:true > "$OS_FILE"
 
-# Top 50 most common open ports
-shodan stats --facets port:50 country:PY > "$PORT_FILE"
+# Top 50 most common open ports (on vulnerable devices)
+shodan stats --facets port:50 country:PY has_vuln:true > "$PORT_FILE"
 
-# Top 50 ASNs (Autonomous System Numbers)
-shodan stats --facets asn:50 country:PY > "$ASN_FILE"
+# Top 50 ASNs (Autonomous System Numbers) (hosting vulnerable devices)
+shodan stats --facets asn:50 country:PY has_vuln:true > "$ASN_FILE"
 
-# Top 50 HTTP components
-shodan stats --facets http.component:50 country:PY > "$HTTP_COMPONENT_FILE"
+# Top 50 HTTP components (on vulnerable devices)
+shodan stats --facets http.component:50 country:PY has_vuln:true > "$HTTP_COMPONENT_FILE"
 
-# Top 50 HTTP component categories
-shodan stats --facets http.component_category:50 country:PY > "$HTTP_COMPONENT_CATEGORY_FILE"
+# Top 50 HTTP component categories (on vulnerable devices)
+shodan stats --facets http.component_category:50 country:PY has_vuln:true > "$HTTP_COMPONENT_CATEGORY_FILE"
 
-# Top 50 SSL versions
-shodan stats --facets ssl.version:50 country:PY > "$SSL_VERSION_FILE"
+# Top 50 SSL versions (on vulnerable devices)
+shodan stats --facets ssl.version:50 country:PY has_vuln:true > "$SSL_VERSION_FILE"
 
-# Count of devices with and without screenshots
-shodan stats --facets has_screenshot:50 country:PY > "$HAS_SCREENSHOT_FILE"
+# Count of devices with and without screenshots (that are vulnerable)
+shodan stats --facets has_screenshot:50 country:PY has_vuln:true > "$HAS_SCREENSHOT_FILE"
 
 # --- Step 2: Update GitHub Gist ---
 # Update the Gist with the new files
@@ -206,61 +206,61 @@ cat <<EOF > "$HTML_FILE"
 
     <h2 class="section-title">Top 50 Proveedores de Internet (ISPs)</h2>
     <p><b>Proveedores de Internet (ISPs)</b></p>
-    <p class="description"><i>¿Qué muestra? Lista las empresas que proveen acceso a internet y cuántos dispositivos bajo su red están visibles en internet.</i></p>
+    <p class="description"><i>¿Qué muestra? Lista las empresas que proveen acceso a internet y cuántos dispositivos <b>con vulnerabilidades conocidas</b> bajo su red están visibles en internet.</i></p>
     <p class="description"><i>¿Por qué importa? Un número alto no es malo por sí solo, pero si esos dispositivos no están protegidos correctamente, pueden ser atacados. Algunos ISPs no aplican suficientes medidas de seguridad.</i></p>
     ${ISP_TABLE_HTML}
 
     <h2 class="section-title">Top 50 Ciudades</h2>
     <p><b>Ciudades</b></p>
-    <p class="description"><i>¿Qué muestra? Muestra las ciudades paraguayas donde hay más dispositivos conectados y expuestos en internet.</i></p>
+    <p class="description"><i>¿Qué muestra? Muestra las ciudades paraguayas donde hay más dispositivos <b>con vulnerabilidades conocidas</b> conectados y expuestos en internet.</i></p>
     <p class="description"><i>¿Por qué importa? Donde hay más exposición, también hay más riesgo. Una ciudad con miles de dispositivos visibles en internet tiene mayor probabilidad de sufrir ciberataques masivos o propagación rápida de amenazas.</i></p>
     ${CITIES_TABLE_HTML}
 
     <h2 class="section-title">Top 50 Productos</h2>
     <p><b>Productos</b></p>
-    <p class="description"><i>¿Qué muestra? Dispositivos y programas específicos que están conectados a internet (por ejemplo, cámaras de vigilancia, routers, servidores de bases de datos, etc.).</i></p>
+    <p class="description"><i>¿Qué muestra? Dispositivos y programas específicos <b>con vulnerabilidades conocidas</b> que están conectados a internet (por ejemplo, cámaras de vigilancia, routers, servidores de bases de datos, etc.).</i></p>
     <p class="description"><i>¿Por qué importa? Algunos productos son muy vulnerables si no se configuran correctamente. Por ejemplo, muchas cámaras o routers vienen con contraseñas débiles de fábrica. Si no se cambian, cualquier persona en internet podría ver esas cámaras o entrar a la red.</i></p>
     ${PRODUCT_TABLE_HTML}
 
     <h2 class="section-title">Top 50 Sistemas Operativos</h2>
     <p><b>Sistemas Operativos</b></p>
-    <p class="description"><i>¿Qué muestra? Los sistemas que usan los dispositivos conectados (como Windows, Linux, RouterOS, etc.).</i></p>
+    <p class="description"><i>¿Qué muestra? Los sistemas que usan los dispositivos <b>con vulnerabilidades conocidas</b> conectados (como Windows, Linux, RouterOS, etc.).</i></p>
     <p class="description"><i>¿Por qué importa? Los sistemas desactualizados o no oficiales suelen tener fallas conocidas. Es como dejar abierta una puerta que ya se sabe cómo forzar. Muchos sistemas aquí tienen versiones viejas que ya no reciben actualizaciones de seguridad.</i></p>
     ${OS_TABLE_HTML}
 
     <h2 class="section-title">Top 50 Puertos Abiertos Detectados</h2>
     <p><b>Puertos</b></p>
-    <p class="description"><i>¿Qué muestra? "Puertos" son como puertas que permiten que los dispositivos se comuniquen. Esta sección lista los más abiertos en Paraguay.</i></p>
+    <p class="description"><i>¿Qué muestra? "Puertos" son como puertas que permiten que los dispositivos <b>con vulnerabilidades conocidas</b> se comuniquen. Esta sección lista los más abiertos en Paraguay.</i></p>
     <p class="description"><i>¿Por qué importa? Algunos puertos son conocidos por ser usados en ataques (como el puerto 23 o 3389). Si están abiertos y mal protegidos, los hackers pueden entrar fácilmente. Cada puerto abierto debe estar justificado y protegido.</i></p>
     ${PORT_TABLE_HTML}
 
     <h2 class="section-title">Top 50 Números de Sistemas Autónomos (ASNs)</h2>
     <p><b>Números de Sistemas Autónomos (ASN)</b></p>
-    <p class="description"><i>¿Qué muestra? Cada ASN representa una red de computadoras de un proveedor o empresa. Aquí se muestra cuántos dispositivos visibles tiene cada red.</i></p>
+    <p class="description"><i>¿Qué muestra? Cada ASN representa una red de computadoras de un proveedor o empresa. Aquí se muestra cuántos dispositivos <b>con vulnerabilidades conocidas</b> visibles tiene cada red.</i></p>
     <p class="description"><i>¿Por qué importa? Si una red entera está mal configurada, todos sus dispositivos pueden ser atacados o utilizados para lanzar ataques a otros. Es responsabilidad de cada red aplicar buenas prácticas de ciberseguridad.</i></p>
     ${ASN_TABLE_HTML}
 
     <h2 class="section-title">Top 50 Componentes HTTP</h2>
     <p><b>Componentes HTTP</b></p>
-    <p class="description"><i>¿Qué muestra? Lista de tecnologías usadas para servir páginas web o gestionar conexiones a través de internet.</i></p>
+    <p class="description"><i>¿Qué muestra? Lista de tecnologías usadas para servir páginas web o gestionar conexiones a través de internet en dispositivos <b>con vulnerabilidades conocidas</b>.</i></p>
     <p class="description"><i>¿Por qué importa? Muchos de estos sistemas, si no se actualizan o configuran bien, permiten que atacantes tomen control del sitio web, accedan a información privada o modifiquen el contenido.</i></p>
     ${HTTP_COMPONENT_TABLE_HTML}
 
     <h2 class="section-title">Top 50 Categorías de Componentes HTTP</h2>
     <p><b>Categorías de Componentes HTTP</b></p>
-    <p class="description"><i>¿Qué muestra? Clasifica los componentes HTTP en categorías, mostrando las más frecuentes en Paraguay.</i></p>
+    <p class="description"><i>¿Qué muestra? Clasifica los componentes HTTP en categorías, mostrando las más frecuentes en Paraguay entre dispositivos <b>con vulnerabilidades conocidas</b>.</i></p>
     <p class="description"><i>¿Por qué importa? Permite identificar tendencias tecnológicas y posibles vectores de ataque según el tipo de tecnología predominante.</i></p>
     ${HTTP_COMPONENT_CATEGORY_TABLE_HTML}
 
     <h2 class="section-title">Versiones de SSL/TLS Detectadas y su Prevalencia</h2>
     <p><b>Versiones de SSL/TLS</b></p>
-    <p class="description"><i>¿Qué muestra? Enumera las versiones de SSL/TLS detectadas en dispositivos en Paraguay y su frecuencia.</i></p>
+    <p class="description"><i>¿Qué muestra? Enumera las versiones de SSL/TLS detectadas en dispositivos <b>con vulnerabilidades conocidas</b> en Paraguay y su frecuencia.</i></p>
     <p class="description"><i>¿Por qué importa? El uso de versiones obsoletas (ej. SSLv2, SSLv3, TLS 1.0/1.1) representa un riesgo de seguridad significativo.</i></p>
     ${SSL_VERSION_TABLE_HTML}
 
     <h2 class="section-title">Conteo de Dispositivos con posibles Capturas de Pantalla</h2>
     <p><b>Capturas de Pantalla</b></p>
-    <p class="description"><i>¿Qué muestra? Muestra la cantidad de dispositivos en Paraguay para los cuales Shodan tiene capturas de pantalla disponibles.</i></p>
+    <p class="description"><i>¿Qué muestra? Muestra la cantidad de dispositivos <b>con vulnerabilidades conocidas</b> en Paraguay para los cuales Shodan tiene capturas de pantalla disponibles.</i></p>
     <p class="description"><i>¿Por qué importa? Permite visualizar remotamente la interfaz de algunos dispositivos, lo que puede evidenciar configuraciones inseguras o información sensible expuesta.</i></p>
     ${HAS_SCREENSHOT_TABLE_HTML}
 </body>
