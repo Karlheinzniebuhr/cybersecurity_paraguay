@@ -119,7 +119,7 @@ git status
 
 git add index.html
 git commit -m "[TEST] Update Shodan stats - $(date)"
-git push origin main  # Replace 'main' with your branch if it's different
+git push origin master  # Replace 'main' with your branch if it's different
 
 # --- Step 5: Log Completion ---
 echo "[INFO] Test script completed at $(date)" >> "$OUTPUT_DIR/update_log.txt"

@@ -157,7 +157,7 @@ echo "Pushing updates to GitHub Pages..."
 cd "$REPO_DIR"
 git add index.html
 git commit -m "Update Shodan stats - $(date)"
-git push origin main  # Replace 'main' with your branch if it's different (e.g., 'master')
+git push origin master  # Replace 'main' with your branch if it's different (e.g., 'master')
 
 # --- Step 5: Log Completion ---
 echo "Script completed at $(date)" >> "$OUTPUT_DIR/update_log.txt"
