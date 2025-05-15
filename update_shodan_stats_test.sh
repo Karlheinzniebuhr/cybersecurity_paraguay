@@ -46,7 +46,7 @@ generate_html_table() {
         print "  <thead>"
         print "    <tr>"
         printf "      <th>%s</th>\n", h1
-        printf "      <th style=\"text-align: right;\">%s</th>\n", h2
+        printf "      <th>%s</th>\n", h2  # No style, left-aligned
         print "    </tr>"
         print "  </thead>"
         print "  <tbody>"
@@ -61,7 +61,7 @@ generate_html_table() {
         gsub(/&/, "&amp;", name_part);
         gsub(/</, "&lt;", name_part);
         gsub(/>/, "&gt;", name_part);
-        printf "    <tr><td>%s</td><td style=\"text-align: right;\">%s</td></tr>\n", name_part, count;
+        printf "    <tr><td>%s</td><td>%s</td></tr>\n", name_part, count;
     }
     END {
         print "  </tbody>"
@@ -123,7 +123,7 @@ cat <<EOF > "$HTML_FILE"
             padding-bottom: 5px;
         }
         .stats-table {
-            width: 100%;
+            /* width: 100%; */
             border-collapse: collapse;
             margin-bottom: 20px;
             background-color: #fff;
@@ -145,7 +145,7 @@ cat <<EOF > "$HTML_FILE"
             background-color: #f9f9f9;
         }
         .stats-table td:last-child {
-            text-align: right;
+            text-align: left;
             white-space: nowrap;
         }
     </style>
