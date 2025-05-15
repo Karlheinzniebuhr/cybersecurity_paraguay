@@ -47,7 +47,7 @@ Puedes ver los resultados publicados en el archivo `index.html` o directamente e
 
 ## Créditos
 - Datos públicos de [Shodan](https://shodan.io/).
-- Autor: [@karlbooklover](https://x.com/karlbooklover)
+- Autor: [@karl](https://x.com/karlbooklover)
 
 ## Licencia
 MIT
