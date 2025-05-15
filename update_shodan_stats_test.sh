@@ -215,7 +215,7 @@ cat <<EOF > "$HTML_FILE"
     <p class="description"><i>¿Por qué importa? El uso de versiones obsoletas (ej. SSLv2, SSLv3, TLS 1.0/1.1) representa un riesgo de seguridad significativo.</i></p>
     ${SSL_VERSION_TABLE_HTML}
 
-    <h2 class="section-title">Conteo de Dispositivos con Capturas de Pantalla</h2>
+    <h2 class="section-title">Conteo de Dispositivos con posibles Capturas de Pantalla</h2>
     <p><b>Capturas de Pantalla</b></p>
     <p class="description"><i>¿Qué muestra? Muestra la cantidad de dispositivos en Paraguay para los cuales Shodan tiene capturas de pantalla disponibles.</i></p>
     <p class="description"><i>¿Por qué importa? Permite visualizar remotamente la interfaz de algunos dispositivos, lo que puede evidenciar configuraciones inseguras o información sensible expuesta.</i></p>

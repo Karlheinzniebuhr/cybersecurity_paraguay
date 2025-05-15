@@ -49,7 +49,7 @@ shodan stats --facets product:50 country:PY > "$PRODUCT_FILE"
 # Top 50 operating systems
 shodan stats --facets os:50 country:PY > "$OS_FILE"
 
-# Top 50 ports with vulnerabilities
+# Top 50 most common open ports
 shodan stats --facets port:50 country:PY > "$PORT_FILE"
 
 # Top 50 ASNs (Autonomous System Numbers)
@@ -64,7 +64,7 @@ shodan stats --facets http.component_category:50 country:PY > "$HTTP_COMPONENT_C
 # Top 50 SSL versions
 shodan stats --facets ssl.version:50 country:PY > "$SSL_VERSION_FILE"
 
-# Top 50 devices with screenshots
+# Count of devices with and without screenshots
 shodan stats --facets has_screenshot:50 country:PY > "$HAS_SCREENSHOT_FILE"
 
 # --- Step 2: Update GitHub Gist ---
@@ -258,7 +258,7 @@ cat <<EOF > "$HTML_FILE"
     <p class="description"><i>¿Por qué importa? El uso de versiones obsoletas (ej. SSLv2, SSLv3, TLS 1.0/1.1) representa un riesgo de seguridad significativo.</i></p>
     ${SSL_VERSION_TABLE_HTML}
 
-    <h2 class="section-title">Conteo de Dispositivos con Capturas de Pantalla</h2>
+    <h2 class="section-title">Conteo de Dispositivos con posibles Capturas de Pantalla</h2>
     <p><b>Capturas de Pantalla</b></p>
     <p class="description"><i>¿Qué muestra? Muestra la cantidad de dispositivos en Paraguay para los cuales Shodan tiene capturas de pantalla disponibles.</i></p>
     <p class="description"><i>¿Por qué importa? Permite visualizar remotamente la interfaz de algunos dispositivos, lo que puede evidenciar configuraciones inseguras o información sensible expuesta.</i></p>
