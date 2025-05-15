@@ -104,6 +104,10 @@ cat <<EOF > "$HTML_FILE"
     <h1>Estadísticas de Ciberseguridad de Shodan para Paraguay</h1>
     <p>Última actualización: $(date)</p>
 
+    <h2>Top 50 Vulnerabilidades</h2>
+    <p class="description">Identifica las 50 vulnerabilidades más comunes en dispositivos conectados a internet en Paraguay.</p>
+    <pre>$(cat "$VULNS_FILE")</pre>
+
     <h2>Top 50 Proveedores de Internet (ISPs)</h2>
     <p class="description">Muestra los 50 principales proveedores de internet en Paraguay con más dispositivos conectados detectados por Shodan.</p>
     <pre>$(cat "$ISP_FILE")</pre>
@@ -111,10 +115,6 @@ cat <<EOF > "$HTML_FILE"
     <h2>Top 50 Ciudades</h2>
     <p class="description">Lista las 50 ciudades de Paraguay con mayor cantidad de dispositivos en línea, según su presencia en internet.</p>
     <pre>$(cat "$CITIES_FILE")</pre>
-
-    <h2>Top 50 Vulnerabilidades</h2>
-    <p class="description">Identifica las 50 vulnerabilidades más comunes en dispositivos conectados a internet en Paraguay.</p>
-    <pre>$(cat "$VULNS_FILE")</pre>
 
     <h2>Top 50 Productos</h2>
     <p class="description">Presenta los 50 productos (como routers o servidores) más detectados en Paraguay, indicando su prevalencia.</p>
@@ -124,8 +124,8 @@ cat <<EOF > "$HTML_FILE"
     <p class="description">Muestra los 50 sistemas operativos más utilizados en dispositivos conectados en Paraguay.</p>
     <pre>$(cat "$OS_FILE")</pre>
 
-    <h2>Top 50 Puertos</h2>
-    <p class="description">Lista los 50 puertos más expuestos en dispositivos de Paraguay, indicando posibles riesgos de seguridad.</p>
+    <h2>Top 50 Puertos Abiertos Detectados</h2>
+    <p class="description">Enumera los 50 puertos que se encuentran abiertos con mayor frecuencia en dispositivos en Paraguay. La exposición de puertos puede representar un riesgo de seguridad si los servicios que los utilizan no están debidamente asegurados o son vulnerables.</p>
     <pre>$(cat "$PORT_FILE")</pre>
 
     <h2>Top 50 Números de Sistemas Autónomos (ASNs)</h2>
@@ -140,12 +140,12 @@ cat <<EOF > "$HTML_FILE"
     <p class="description">Clasifica los componentes HTTP en categorías, mostrando las 50 más frecuentes en Paraguay.</p>
     <pre>$(cat "$HTTP_COMPONENT_CATEGORY_FILE")</pre>
 
-    <h2>Top 50 Versiones de SSL</h2>
-    <p class="description">Lista las 50 versiones de SSL más utilizadas en conexiones seguras de dispositivos en Paraguay.</p>
+    <h2>Versiones de SSL/TLS Detectadas y su Prevalencia</h2>
+    <p class="description">Enumera las versiones de SSL/TLS detectadas en dispositivos en Paraguay y su frecuencia. El uso de versiones obsoletas (ej. SSLv2, SSLv3, TLS 1.0/1.1) representa un riesgo de seguridad significativo.</p>
     <pre>$(cat "$SSL_VERSION_FILE")</pre>
 
-    <h2>Top 50 Dispositivos con Capturas de Pantalla</h2>
-    <p class="description">Muestra la cantidad de dispositivos en Paraguay que tienen capturas de pantalla disponibles en Shodan.</p>
+    <h2>Conteo de Dispositivos con Capturas de Pantalla</h2>
+    <p class="description">Muestra la cantidad de dispositivos en Paraguay para los cuales Shodan tiene capturas de pantalla disponibles.</p>
     <pre>$(cat "$HAS_SCREENSHOT_FILE")</pre>
 </body>
 </html>

@@ -4,14 +4,14 @@ Este proyecto automatiza la recopilación, análisis y publicación de estadíst
 
 ## ¿Qué hace este proyecto?
 - Ejecuta comandos de Shodan para obtener información relevante sobre Paraguay:
+  - Vulnerabilidades más comunes
   - Proveedores de Internet (ISPs)
   - Ciudades con más dispositivos conectados
-  - Vulnerabilidades más comunes
   - Productos y sistemas operativos detectados
   - Puertos expuestos
   - Números de Sistemas Autónomos (ASNs)
   - Componentes y categorías HTTP
-  - Versiones de SSL
+  - Versiones de SSL/TLS (incluyendo detección de versiones obsoletas)
   - Dispositivos con capturas de pantalla
 - Genera un archivo HTML visualmente atractivo con los resultados.
 - Actualiza automáticamente un Gist y un repositorio de GitHub Pages con los datos más recientes.
