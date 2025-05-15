@@ -1,20 +1,13 @@
 #!/bin/bash
 
-# Script: update_shodan_stats.sh
-# Purpose: Run Shodan commands, save outputs, update a GitHub Gist, and refresh a GitHub Pages site
+# Script: update_shodan_stats_test.sh
+# Purpose: Test script to update GitHub Gist and GitHub Pages using existing Shodan output files, skipping Shodan API calls.
 
 # --- Configuration ---
-# Directory to store output files (make sure this directory exists)
 OUTPUT_DIR="/home/karl/cybersecurity_paraguay/shodan_stats"
-mkdir -p "$OUTPUT_DIR"
-
-# GitHub Gist ID (replace with your Gist ID after creating it)
 GIST_ID="b7caf313129e29a5ac56081c5b5e0114"
-
-# GitHub Pages repository directory (replace with your local repo path)
 REPO_DIR="/home/karl/cybersecurity_paraguay/Vulnerabilidades-Shodan-en-Paraguay"
 
-# Shodan command output files
 ISP_FILE="$OUTPUT_DIR/isp.txt"
 CITIES_FILE="$OUTPUT_DIR/cities.txt"
 VULNS_FILE="$OUTPUT_DIR/vulns.txt"
@@ -27,57 +20,20 @@ HTTP_COMPONENT_CATEGORY_FILE="$OUTPUT_DIR/http_component_category.txt"
 SSL_VERSION_FILE="$OUTPUT_DIR/ssl_version.txt"
 HAS_SCREENSHOT_FILE="$OUTPUT_DIR/has_screenshot.txt"
 
-# HTML file for GitHub Pages
 HTML_FILE="$REPO_DIR/index.html"
 
-# --- Step 1: Run Shodan Commands ---
-# These commands are derived from the X thread and the new requests
-echo "Running Shodan commands..."
-
-# Top 50 ISPs in Paraguay
-shodan stats --facets isp:50 country:PY > "$ISP_FILE"
-
-# Top 50 cities with devices online
-shodan stats --facets city:50 country:PY > "$CITIES_FILE"
-
-# Top 50 vulnerabilities in Paraguay
-shodan stats --facets vuln:50 country:PY > "$VULNS_FILE"
-
-# Top 50 products (e.g., routers like Mikrotik)
-shodan stats --facets product:50 country:PY > "$PRODUCT_FILE"
-
-# Top 50 operating systems
-shodan stats --facets os:50 country:PY > "$OS_FILE"
-
-# Top 50 ports with vulnerabilities
-shodan stats --facets port:50 country:PY > "$PORT_FILE"
-
-# Top 50 ASNs (Autonomous System Numbers)
-shodan stats --facets asn:50 country:PY > "$ASN_FILE"
-
-# Top 50 HTTP components
-shodan stats --facets http.component:50 country:PY > "$HTTP_COMPONENT_FILE"
-
-# Top 50 HTTP component categories
-shodan stats --facets http.component_category:50 country:PY > "$HTTP_COMPONENT_CATEGORY_FILE"
-
-# Top 50 SSL versions
-shodan stats --facets ssl.version:50 country:PY > "$SSL_VERSION_FILE"
-
-# Top 50 devices with screenshots
-shodan stats --facets has_screenshot:50 country:PY > "$HAS_SCREENSHOT_FILE"
+# --- Step 1: Skip Shodan Commands ---
+echo "[INFO] Skipping Shodan commands. Using existing output files in $OUTPUT_DIR."
 
 # --- Step 2: Update GitHub Gist ---
-# Update the Gist with the new files
-echo "Updating GitHub Gist..."
+echo "[INFO] Updating GitHub Gist..."
 gh gist edit "$GIST_ID" -a "$ISP_FILE" -a "$CITIES_FILE" -a "$VULNS_FILE" \
   -a "$PRODUCT_FILE" -a "$OS_FILE" -a "$PORT_FILE" -a "$ASN_FILE" \
   -a "$HTTP_COMPONENT_FILE" -a "$HTTP_COMPONENT_CATEGORY_FILE" \
   -a "$SSL_VERSION_FILE" -a "$HAS_SCREENSHOT_FILE"
 
 # --- Step 3: Generate HTML File ---
-# Create a simple HTML file with the Shodan data
-echo "Generating HTML file..."
+echo "[INFO] Generating HTML file..."
 cat <<EOF > "$HTML_FILE"
 <!DOCTYPE html>
 <html lang="es">
@@ -152,12 +108,18 @@ cat <<EOF > "$HTML_FILE"
 EOF
 
 # --- Step 4: Push to GitHub Pages ---
-# Commit and push the updated HTML file to your GitHub Pages repo
-echo "Pushing updates to GitHub Pages..."
+echo "[DEBUG] Changing to repo directory: $REPO_DIR"
 cd "$REPO_DIR"
+echo "[DEBUG] Current directory: $(pwd)"
+echo "[DEBUG] Git remote -v:"
+git remote -v
+echo "[DEBUG] Git branch: $(git rev-parse --abbrev-ref HEAD)"
+echo "[DEBUG] Git status:"
+git status
+
 git add index.html
-git commit -m "Update Shodan stats - $(date)"
-git push origin main  # Replace 'main' with your branch if it's different (e.g., 'master')
+git commit -m "[TEST] Update Shodan stats - $(date)"
+git push origin main  # Replace 'main' with your branch if it's different
 
 # --- Step 5: Log Completion ---
-echo "Script completed at $(date)" >> "$OUTPUT_DIR/update_log.txt"
+echo "[INFO] Test script completed at $(date)" >> "$OUTPUT_DIR/update_log.txt"
