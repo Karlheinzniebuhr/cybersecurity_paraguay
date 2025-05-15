@@ -196,7 +196,7 @@ cat <<EOF > "$HTML_FILE"
 <body>
     <h1>Estadísticas de Ciberseguridad de Paraguay según Shodan</h1>
     <p class="intro"><b>Shodan es un motor de búsqueda que rastrea dispositivos conectados a internet en todo el mundo. Estos dispositivos pueden ser cámaras, routers, servidores, sensores, entre otros. Este informe presenta cómo está expuesto Paraguay en términos de ciberseguridad.</b></p>
-    <p>Última actualización: $(date)</p>
+    <p>Última actualización: $(date +"%d-%m-%Y")</p>
 
     <h2 class="section-title">Top 50 Vulnerabilidades</h2>
     <p><b>Vulnerabilidades (CVE)</b></p>
