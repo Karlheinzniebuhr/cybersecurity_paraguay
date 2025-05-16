@@ -1,4 +1,5 @@
 #!/bin/bash
+PATH="/home/karl/.local/bin/shodan"
 
 # Script: update_shodan_stats_test.sh
 # Purpose: Test script to update GitHub Gist and GitHub Pages using existing Shodan output files, skipping Shodan API calls.

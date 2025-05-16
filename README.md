@@ -62,7 +62,7 @@ Puedes ver los resultados publicados en el archivo `index.html` o directamente e
 
 Datos públicos de Shodan.
 
-Autor: @karl
+Autor: [@karl](https://x.com/karlbooklover)
 
 ## Licencia
 

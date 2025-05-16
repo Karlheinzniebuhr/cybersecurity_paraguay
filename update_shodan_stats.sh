@@ -1,4 +1,5 @@
 #!/bin/bash
+PATH="/home/karl/.local/bin/shodan"
 
 # Script: update_shodan_stats.sh
 # Purpose: Run Shodan commands, save outputs, update a GitHub Gist, and refresh a GitHub Pages site
