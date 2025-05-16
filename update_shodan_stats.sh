@@ -1,5 +1,10 @@
 #!/bin/bash
-PATH="/home/karl/.local/bin/shodan"
+
+# --- Set a comprehensive PATH for cron ---
+# Include directories where common commands and your user-installed tools live.
+# Based on your 'which' output, we need /home/karl/.local/bin and /usr/bin.
+# We also include other standard places just to be safe.
+export PATH="/home/karl/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 # Script: update_shodan_stats.sh
 # Purpose: Run Shodan commands, save outputs, update a GitHub Gist, and refresh a GitHub Pages site
