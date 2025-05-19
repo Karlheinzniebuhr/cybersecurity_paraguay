@@ -58,7 +58,8 @@ generate_html_table() {
         count = $NF;
         name_output_final = ""; # Will hold the content for the first <td>
 
-        if (h1 == "Vulnerabilidad (CVE)" && $1 ~ /^CVE-[0-9]{4}-[0-9]+$/) {
+        # DEBUGGING: Temporarily remove h1 check to isolate hyperlink logic
+        if ($1 ~ /^CVE-[0-9]{4}-[0-9]+$/) {
             # This is the Vulnerability table and $1 matches CVE pattern
             cve_id_for_url = $1;       # Raw CVE ID for URL (e.g., CVE-2021-1234)
             cve_id_for_display = $1;   # CVE ID for link text, will be HTML-escaped
