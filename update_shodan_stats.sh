@@ -97,7 +97,7 @@ generate_html_table() {
         count = $NF;
         name_output_final = ""; # Will hold the content for the first <td>
 
-        if (tolower($1) ~ /^cve-[0-9]{4}-[0-9]+$/) {
+        if (tolower($1) ~ /^cve-[0-9][0-9][0-9][0-9]-[0-9]+$/) {
             # This is the Vulnerability table and $1 matches CVE pattern (case-insensitive)
             # Convert to uppercase for URL and display
             cve_id_for_url = toupper($1);     # Convert to uppercase for URL
