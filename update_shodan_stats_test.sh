@@ -152,7 +152,7 @@ cat <<EOF > "$HTML_FILE"
 <body>
     <h1>Estadísticas de Ciberseguridad de Paraguay según Shodan</h1>
     <p class="intro"><b>Shodan es un motor de búsqueda que rastrea dispositivos conectados a internet en todo el mundo. Estos dispositivos pueden ser cámaras, routers, servidores, sensores, entre otros. Este informe presenta cómo está expuesto Paraguay en términos de ciberseguridad.</b></p>
-    <p>Última actualización: $(date +"%d-%m-%Y")</p>
+    <p title="Los rastreadores de Shodan escanean todo internet al menos una vez por semana, actualizando su base de datos en tiempo real. Trabajan 24/7, sondeando continuamente internet en busca de dispositivos y servicios abiertos. Los rastreadores de Shodan no barren rangos de IP; en su lugar, generan aleatoriamente direcciones IP y puertos para verificar. Aunque la frecuencia principal de rastreo es semanal, los usuarios pueden activar escaneos bajo demanda utilizando la API para dispositivos o redes específicas.">Última actualización: $(date +"%d-%m-%Y %H:%M:%S %Z")</p>
 
     <h2 class="section-title">Top 50 Vulnerabilidades</h2>
     <p><b>Vulnerabilidades (CVE)</b></p>
@@ -219,6 +219,10 @@ cat <<EOF > "$HTML_FILE"
     <p class="description"><i>¿Qué muestra? Muestra la cantidad de dispositivos <b>con vulnerabilidades conocidas</b> en Paraguay para los cuales Shodan tiene capturas de pantalla disponibles.</i></p>
     <p class="description"><i>¿Por qué importa? Permite visualizar remotamente la interfaz de algunos dispositivos, lo que puede evidenciar configuraciones inseguras o información sensible expuesta.</i></p>
     ${HAS_SCREENSHOT_TABLE_HTML}
+
+    <h2 class="section-title">Créditos</h2>
+    <p>Este proyecto fue realizado por Karl y la comunidad Hackpy. Puedes seguirme en X (Twitter): <a href="https://x.com/karlbooklover" target="_blank" rel="noopener noreferrer">@karlbooklover</a>.</p>
+    <p>Datos obtenidos de Shodan.</p>
 </body>
 </html>
 EOF
