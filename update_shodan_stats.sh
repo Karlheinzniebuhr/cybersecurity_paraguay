@@ -78,7 +78,16 @@ generate_html_table() {
     local headers_str="$2"
     local header1 header2
     IFS='|' read -r header1 header2 <<< "$headers_str"
-    awk -v h1="$header1" -v h2="$header2" '
+    
+    local is_vuln_table_awk_var="0" # Default to false (not vuln table)
+    if [ "$header1" = "Vulnerabilidad (CVE)" ]; then
+        is_vuln_table_awk_var="1" # True if it's the vuln table
+    fi
+
+    # AWK script to generate table rows.
+    # If it's the vulnerability table and the first field looks like a CVE ID,
+    # it creates a hyperlink. Otherwise, it uses the original formatting.
+    awk -v h1="$header1" -v h2="$header2" -v is_vuln_table="$is_vuln_table_awk_var" '
     BEGIN {
         print "<table class=\"stats-table\">"
         print "  <thead>"
@@ -89,17 +98,49 @@ generate_html_table() {
         print "  </thead>"
         print "  <tbody>"
     }
-    NR > 1 && NF > 1 {
+    NR > 1 && NF >= 2 { # Process lines after header, ensuring at least 2 fields (name + count)
         count = $NF;
-        name_part = $1;
-        for (i = 2; i < NF; i++) {
-            name_part = name_part " " $i;
+        name_output_final = ""; # Will hold the content for the first <td>
+
+        if (is_vuln_table == 1 && $1 ~ /^CVE-[0-9]{4}-[0-9]+$/) {
+            # This is the Vulnerability table and $1 matches CVE pattern
+            cve_id_for_url = $1;       # Raw CVE ID for URL (e.g., CVE-2021-1234)
+            cve_id_for_display = $1;   # CVE ID for link text, will be HTML-escaped
+
+            # HTML-escape the CVE ID that will be displayed as the link text
+            gsub(/&/, "&amp;", cve_id_for_display);
+            gsub(/</, "&lt;", cve_id_for_display);
+            gsub(/>/, "&gt;", cve_id_for_display);
+
+            # Construct the hyperlink
+            name_output_final = sprintf("<a href=\"https://www.cve.org/CVERecord/SearchResults?query=%s\" target=\"_blank\" rel=\"noopener noreferrer\">%s</a>", cve_id_for_url, cve_id_for_display);
+            
+            # If there are descriptive parts after CVE ID and before count (e.g. CVE-ID Description Count)
+            # This part might not be used if Shodan vuln facet output is just "CVE-ID Count"
+            if (NF > 2) { 
+                description_part = "";
+                for (i = 2; i < NF; i++) { # Concatenate fields between $1 and $NF
+                    description_part = description_part (description_part == "" ? "" : " ") $i;
+                }
+                # HTML-escape the description part
+                gsub(/&/, "&amp;", description_part);
+                gsub(/</, "&lt;", description_part);
+                gsub(/>/, "&gt;", description_part);
+                name_output_final = name_output_final " " description_part; # Append description to link
+            }
+        } else {
+            # Original logic for other tables: concatenate $1 up to $(NF-1)
+            temp_name_part = $1;
+            for (i = 2; i < NF; i++) {
+                temp_name_part = temp_name_part " " $i;
+            }
+            # HTML-escape the entire name part
+            gsub(/&/, "&amp;", temp_name_part);
+            gsub(/</, "&lt;", temp_name_part);
+            gsub(/>/, "&gt;", temp_name_part);
+            name_output_final = temp_name_part;
         }
-        # Correct HTML escaping
-        gsub(/&/, "&amp;", name_part);
-        gsub(/</, "&lt;", name_part);
-        gsub(/>/, "&gt;", name_part);
-        printf "    <tr><td>%s</td><td>%s</td></tr>\n", name_part, count;
+        printf "    <tr><td>%s</td><td>%s</td></tr>\n", name_output_final, count;
     }
     END {
         print "  </tbody>"
