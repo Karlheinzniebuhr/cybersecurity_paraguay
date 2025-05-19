@@ -40,15 +40,10 @@ generate_html_table() {
     local header1 header2
     IFS='|' read -r header1 header2 <<< "$headers_str"
     
-    local is_vuln_table_awk_var="0" # Default to false (not vuln table)
-    if [ "$header1" = "Vulnerabilidad (CVE)" ]; then
-        is_vuln_table_awk_var="1" # True if it's the vuln table
-    fi
-
     # AWK script to generate table rows.
-    # If it's the vulnerability table and the first field looks like a CVE ID,
+    # If it's the vulnerability table (based on h1) and the first field looks like a CVE ID,
     # it creates a hyperlink. Otherwise, it uses the original formatting.
-    awk -v h1="$header1" -v h2="$header2" -v is_vuln_table="$is_vuln_table_awk_var" '
+    awk -v h1="$header1" -v h2="$header2" '
     BEGIN {
         print "<table class=\"stats-table\">"
         print "  <thead>"
@@ -63,7 +58,7 @@ generate_html_table() {
         count = $NF;
         name_output_final = ""; # Will hold the content for the first <td>
 
-        if (is_vuln_table == 1 && $1 ~ /^CVE-[0-9]{4}-[0-9]+$/) {
+        if (h1 == "Vulnerabilidad (CVE)" && $1 ~ /^CVE-[0-9]{4}-[0-9]+$/) {
             # This is the Vulnerability table and $1 matches CVE pattern
             cve_id_for_url = $1;       # Raw CVE ID for URL (e.g., CVE-2021-1234)
             cve_id_for_display = $1;   # CVE ID for link text, will be HTML-escaped
@@ -77,7 +72,6 @@ generate_html_table() {
             name_output_final = sprintf("<a href=\"https://www.cve.org/CVERecord/SearchResults?query=%s\" target=\"_blank\" rel=\"noopener noreferrer\">%s</a>", cve_id_for_url, cve_id_for_display);
             
             # If there are descriptive parts after CVE ID and before count (e.g. CVE-ID Description Count)
-            # This part might not be used if Shodan vuln facet output is just "CVE-ID Count"
             if (NF > 2) { 
                 description_part = "";
                 for (i = 2; i < NF; i++) { # Concatenate fields between $1 and $NF
