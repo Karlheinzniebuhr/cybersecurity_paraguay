@@ -14,9 +14,6 @@ export PATH="/home/karl/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr
 OUTPUT_DIR="/home/karl/cybersecurity_paraguay/shodan_stats"
 mkdir -p "$OUTPUT_DIR"
 
-# GitHub Gist ID (replace with your Gist ID after creating it)
-GIST_ID="b7caf313129e29a5ac56081c5b5e0114"
-
 # GitHub Pages repository directory (replace with your local repo path)
 REPO_DIR="/home/karl/cybersecurity_paraguay/Vulnerabilidades-Shodan-en-Paraguay"
 
@@ -73,15 +70,7 @@ shodan stats --facets ssl.version:50 country:PY has_vuln:true > "$SSL_VERSION_FI
 # Count of devices with and without screenshots (that are vulnerable)
 shodan stats --facets has_screenshot:50 country:PY has_vuln:true > "$HAS_SCREENSHOT_FILE"
 
-# --- Step 2: Update GitHub Gist ---
-# Update the Gist with the new files
-echo "Updating GitHub Gist..."
-gh gist edit "$GIST_ID" -a "$ISP_FILE" -a "$CITIES_FILE" -a "$VULNS_FILE" \
-  -a "$PRODUCT_FILE" -a "$OS_FILE" -a "$PORT_FILE" -a "$ASN_FILE" \
-  -a "$HTTP_COMPONENT_FILE" -a "$HTTP_COMPONENT_CATEGORY_FILE" \
-  -a "$SSL_VERSION_FILE" -a "$HAS_SCREENSHOT_FILE"
-
-# --- Step 3: Generate HTML File ---
+# --- Step 2: Generate HTML File ---
 # Helper function to convert shodan stats output to an HTML table
 # Takes the input file path as $1 and the column headers (e.g., "Proveedor|Dispositivos") as $2
 generate_html_table() {
@@ -273,13 +262,12 @@ cat <<EOF > "$HTML_FILE"
 </html>
 EOF
 
-# --- Step 4: Push to GitHub Pages ---
-# Commit and push the updated HTML file to your GitHub Pages repo
-echo "Pushing updates to GitHub Pages..."
+# --- Step 3: Push to GitHub Pages ---
+echo "[DEBUG] Changing to repo directory: $REPO_DIR"
 cd "$REPO_DIR"
 git add index.html
 git commit -m "Update Shodan stats - $(date)"
-git push origin master  # Replace 'main' with your branch if it's different (e.g., 'master')
+git push origin master # Please ensure this is your default branch
 
-# --- Step 5: Log Completion ---
+# --- Step 4: Log Completion ---
 echo "Script completed at $(date)" >> "$OUTPUT_DIR/update_log.txt"

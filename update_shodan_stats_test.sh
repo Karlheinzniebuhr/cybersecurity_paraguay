@@ -11,7 +11,7 @@ export PATH="/home/karl/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr
 
 # --- Configuration ---
 OUTPUT_DIR="/home/karl/cybersecurity_paraguay/shodan_stats"
-GIST_ID="b7caf313129e29a5ac56081c5b5e0114"
+
 REPO_DIR="/home/karl/cybersecurity_paraguay/Vulnerabilidades-Shodan-en-Paraguay"
 
 ISP_FILE="$OUTPUT_DIR/isp.txt"
@@ -31,14 +31,7 @@ HTML_FILE="$REPO_DIR/index.html"
 # --- Step 1: Skip Shodan Commands ---
 echo "[INFO] Skipping Shodan commands. Using existing output files in $OUTPUT_DIR."
 
-# --- Step 2: Update GitHub Gist ---
-echo "[INFO] Updating GitHub Gist..."
-gh gist edit "$GIST_ID" -a "$ISP_FILE" -a "$CITIES_FILE" -a "$VULNS_FILE" \
-  -a "$PRODUCT_FILE" -a "$OS_FILE" -a "$PORT_FILE" -a "$ASN_FILE" \
-  -a "$HTTP_COMPONENT_FILE" -a "$HTTP_COMPONENT_CATEGORY_FILE" \
-  -a "$SSL_VERSION_FILE" -a "$HAS_SCREENSHOT_FILE"
-
-# --- Step 3: Generate HTML File ---
+# --- Step 2: Generate HTML File ---
 # Helper function to convert shodan stats output to an HTML table
 # Takes the input file path as $1 and the column headers (e.g., "Proveedor|Dispositivos") as $2
 generate_html_table() {
@@ -230,7 +223,7 @@ cat <<EOF > "$HTML_FILE"
 </html>
 EOF
 
-# --- Step 4: Push to GitHub Pages ---
+# --- Step 3: Push to GitHub Pages ---
 echo "[DEBUG] Changing to repo directory: $REPO_DIR"
 cd "$REPO_DIR"
 echo "[DEBUG] Current directory: $(pwd)"
@@ -242,7 +235,7 @@ git status
 
 git add index.html
 git commit -m "[TEST] Update Shodan stats - $(date)"
-git push origin master  # Replace 'main' with your branch if it's different
+git push origin master  # Replace 'master' with your branch if it's different
 
-# --- Step 5: Log Completion ---
+# --- Step 4: Log Completion ---
 echo "[INFO] Test script completed at $(date)" >> "$OUTPUT_DIR/update_log.txt"
