@@ -127,6 +127,17 @@ cat <<EOF > "$HTML_FILE"
     <title>Estadísticas de Shodan - Paraguay</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; color: #333; }
+        .github-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 14px;
+            color: #0366d6; /* GitHub link blue */
+            text-decoration: none;
+        }
+        .github-link:hover {
+            text-decoration: underline;
+        }
         h1 { color: #2c3e50; }
         h2 { color: #2980b9; }
         p { color: #34495e; line-height: 1.6; }
@@ -186,6 +197,9 @@ cat <<EOF > "$HTML_FILE"
     </style>
 </head>
 <body>
+    <div class="github-link">
+        <a href="https://github.com/Karlheinzniebuhr/cybersecurity_paraguay" target="_blank" rel="noopener noreferrer">Código Abierto</a>
+    </div>
     <h1>Estadísticas de Ciberseguridad de Paraguay según Shodan</h1>
     <p class="intro"><b>Shodan es un motor de búsqueda que rastrea dispositivos conectados a internet en todo el mundo. Estos dispositivos pueden ser cámaras, routers, servidores, sensores, entre otros. Este informe presenta cómo está expuesto Paraguay en términos de ciberseguridad.</b></p>
     <p title="Los rastreadores de Shodan escanean todo internet al menos una vez por semana, actualizando su base de datos en tiempo real. Trabajan 24/7, sondeando continuamente internet en busca de dispositivos y servicios abiertos. Los rastreadores de Shodan no barren rangos de IP; en su lugar, generan aleatoriamente direcciones IP y puertos para verificar. Aunque la frecuencia principal de rastreo es semanal, los usuarios pueden activar escaneos bajo demanda utilizando la API para dispositivos o redes específicas.">Última actualización: $(date +"%d-%m-%Y %H:%M:%S")</p>

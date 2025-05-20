@@ -88,48 +88,47 @@ generate_html_table() {
         print "  <thead>"
         print "    <tr>"
         printf "      <th>%s</th>\n", h1
-        printf "      <th>%s</th>\n", h2  # No style, left-aligned
+        printf "      <th>%s</th>\n", h2
         print "    </tr>"
         print "  </thead>"
         print "  <tbody>"
     }
-    NR > 1 && NF >= 2 { # Process lines after header, ensuring at least 2 fields (name + count)
+    NR > 1 && NF >= 2 { # Process lines after header, ensuring at least 2 fields
         count = $NF;
-        name_output_final = ""; # Will hold the content for the first <td>
+        name_output_final = "";
 
-        if (tolower($1) ~ /^cve-[0-9][0-9][0-9][0-9]-[0-9]+$/) {
-            # This is the Vulnerability table and $1 matches CVE pattern (case-insensitive)
-            # Convert to uppercase for URL and display
-            cve_id_for_url = toupper($1);     # Convert to uppercase for URL
-            cve_id_for_display = toupper($1); # Convert to uppercase for display
+        # Extract first field and convert to uppercase for comparison
+        first_field = toupper($1);
+        gsub(/[[:space:]]+$/, "", first_field);  # Remove trailing spaces
 
-            # HTML-escape the CVE ID that will be displayed as the link text
-            gsub(/&/, "&amp;", cve_id_for_display);
-            gsub(/</, "&lt;", cve_id_for_display);
-            gsub(/>/, "&gt;", cve_id_for_display);
+        if (first_field ~ /^CVE-[0-9][0-9][0-9][0-9]-[0-9]+$/) {
+            # HTML-escape the CVE ID
+            gsub(/&/, "&amp;", first_field);
+            gsub(/</, "&lt;", first_field);
+            gsub(/>/, "&gt;", first_field);
 
-            # Construct the hyperlink
-            name_output_final = sprintf("<a href=\"https://www.cve.org/CVERecord/SearchResults?query=%s\" target=\"_blank\" rel=\"noopener noreferrer\">%s</a>", cve_id_for_url, cve_id_for_display);
+            # Create the hyperlink
+            name_output_final = sprintf("<a href=\"https://www.cve.org/CVERecord?id=%s\" target=\"_blank\" rel=\"noopener noreferrer\">%s</a>", first_field, first_field);
             
-            # If there are descriptive parts after CVE ID and before count (e.g. CVE-ID Description Count)
-            if (NF > 2) { 
+            # If there are descriptive parts after CVE ID and before count
+            if (NF > 2) {
                 description_part = "";
-                for (i = 2; i < NF; i++) { # Concatenate fields between $1 and $NF
+                for (i = 2; i < NF; i++) {
                     description_part = description_part (description_part == "" ? "" : " ") $i;
                 }
                 # HTML-escape the description part
                 gsub(/&/, "&amp;", description_part);
                 gsub(/</, "&lt;", description_part);
                 gsub(/>/, "&gt;", description_part);
-                name_output_final = name_output_final " " description_part; # Append description to link
+                name_output_final = name_output_final " " description_part;
             }
         } else {
-            # Original logic for other tables: concatenate $1 up to $(NF-1)
+            # Original logic for other tables
             temp_name_part = $1;
             for (i = 2; i < NF; i++) {
                 temp_name_part = temp_name_part " " $i;
             }
-            # HTML-escape the entire name part
+            # HTML-escape the name part
             gsub(/&/, "&amp;", temp_name_part);
             gsub(/</, "&lt;", temp_name_part);
             gsub(/>/, "&gt;", temp_name_part);
@@ -166,6 +165,17 @@ cat <<EOF > "$HTML_FILE"
     <title>Estadísticas de Shodan - Paraguay</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; color: #333; }
+        .github-link {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 14px;
+            color: #0366d6; /* GitHub link blue */
+            text-decoration: none;
+        }
+        .github-link:hover {
+            text-decoration: underline;
+        }
         h1 { color: #2c3e50; }
         h2 { color: #2980b9; }
         p { color: #34495e; line-height: 1.6; }
@@ -225,8 +235,13 @@ cat <<EOF > "$HTML_FILE"
     </style>
 </head>
 <body>
+    <div class="github-link">
+        <a href="https://github.com/Karlheinzniebuhr/cybersecurity_paraguay" target="_blank" rel="noopener noreferrer">Código Abierto</a>
+    </div>
     <h1>Estadísticas de Ciberseguridad de Paraguay según Shodan</h1>
-    <p class="intro"><b>Shodan es un motor de búsqueda que rastrea dispositivos conectados a internet en todo el mundo. Estos dispositivos pueden ser cámaras, routers, servidores, sensores, entre otros. Este informe presenta cómo está expuesto Paraguay en términos de ciberseguridad.</b></p>
+    <div class="intro">
+        <p>Shodan es un motor de búsqueda que rastrea dispositivos conectados a internet en todo el mundo. Estos dispositivos pueden ser cámaras, routers, servidores, sensores, entre otros. Este informe presenta cómo está expuesto Paraguay en términos de ciberseguridad.</p>
+    </div>
     <p title="Los rastreadores de Shodan escanean todo internet al menos una vez por semana, actualizando su base de datos en tiempo real. Trabajan 24/7, sondeando continuamente internet en busca de dispositivos y servicios abiertos. Los rastreadores de Shodan no barren rangos de IP; en su lugar, generan aleatoriamente direcciones IP y puertos para verificar. Aunque la frecuencia principal de rastreo es semanal, los usuarios pueden activar escaneos bajo demanda utilizando la API para dispositivos o redes específicas.">Última actualización: $(date +"%d-%m-%Y %H:%M:%S")</p>
 
     <h2 class="section-title">Top 50 Vulnerabilidades</h2>
