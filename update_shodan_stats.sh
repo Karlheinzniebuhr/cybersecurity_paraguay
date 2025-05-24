@@ -501,7 +501,7 @@ cat <<EOF > "$HTML_FILE"
     <h2 class="section-title">Conteo de Dispositivos con posibles Capturas de Pantalla</h2>
     <p><b>Capturas de Pantalla</b></p>
     <p class="description"><i>¿Qué muestra? Muestra la cantidad de dispositivos <b>con vulnerabilidades conocidas</b> en Paraguay para los cuales Shodan tiene capturas de pantalla disponibles.</i></p>
-    <p class="description"><i>¿Por qué importa? Permite visualizar remotamente la interfaz de algunos dispositivos, lo que puede evidenciar configuraciones inseguras o información sensible expuesta.</i></p>
+    <p class="description"><i>¿Por qué importa? La presencia de interfaces expuestas indica riesgos potenciales de seguridad, ya que puede revelar configuraciones inseguras o información sensible que los atacantes podrían explotar.</i></p>
     ${HAS_SCREENSHOT_CHART_HTML}
     ${HAS_SCREENSHOT_TABLE_HTML}
 
