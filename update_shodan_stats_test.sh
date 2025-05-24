@@ -131,6 +131,12 @@ generate_chart_html() {
 }
 
 # --- Step 1: Skip Shodan Commands ---
+# Note: In production, these commands use honeypot filtering:
+# Honeypot filtering: Using -tag:honeypot within the search query
+# Additional filters that could be added if needed:
+# -port:2323 -port:23231 -port:2332 (exclude common honeypot ports)
+# -org:"University" -org:"Research" (exclude research institutions)
+# -hostname:honeypot -hostname:canary (exclude obvious honeypot hostnames)
 echo "[INFO] Skipping Shodan commands. Using existing output files in $OUTPUT_DIR."
 
 # --- Step 1.5: Update Tracking Data ---

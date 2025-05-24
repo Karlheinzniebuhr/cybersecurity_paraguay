@@ -52,40 +52,45 @@ HAS_SCREENSHOT_TRACKING_CSV="$TRACKING_DIR/has_screenshot_tracking.csv"
 
 # --- Step 1: Run Shodan Commands ---
 # These commands are derived from the X thread and the new requests
+# Honeypot filtering: Using -tag:honeypot to exclude known honeypots
+# Additional filters that could be added if needed:
+# -port:2323 -port:23231 -port:2332 (exclude common honeypot ports)
+# -org:"University" -org:"Research" (exclude research institutions)
+# -hostname:honeypot -hostname:canary (exclude obvious honeypot hostnames)
 echo "Running Shodan commands..."
 
-# Top 50 ISPs in Paraguay (hosting vulnerable devices)
-shodan stats --facets isp:50 country:PY has_vuln:true > "$ISP_FILE"
+# Top 50 ISPs in Paraguay (hosting vulnerable devices, excluding honeypots)
+shodan stats --facets isp:50 "country:PY has_vuln:true -tag:honeypot" > "$ISP_FILE"
 
-# Top 50 cities with devices online (that are vulnerable)
-shodan stats --facets city:50 country:PY has_vuln:true > "$CITIES_FILE"
+# Top 50 cities with devices online (that are vulnerable, excluding honeypots)
+shodan stats --facets city:50 "country:PY has_vuln:true -tag:honeypot" > "$CITIES_FILE"
 
-# Top 50 vulnerabilities in Paraguay (This command remains unchanged)
-shodan stats --facets vuln:50 country:PY > "$VULNS_FILE"
+# Top 50 vulnerabilities in Paraguay (excluding honeypots)
+shodan stats --facets vuln:50 "country:PY -tag:honeypot" > "$VULNS_FILE"
 
-# Top 50 products (that are vulnerable)
-shodan stats --facets product:50 country:PY has_vuln:true > "$PRODUCT_FILE"
+# Top 50 products (that are vulnerable, excluding honeypots)
+shodan stats --facets product:50 "country:PY has_vuln:true -tag:honeypot" > "$PRODUCT_FILE"
 
-# Top 50 operating systems (on vulnerable devices)
-shodan stats --facets os:50 country:PY has_vuln:true > "$OS_FILE"
+# Top 50 operating systems (on vulnerable devices, excluding honeypots)
+shodan stats --facets os:50 "country:PY has_vuln:true -tag:honeypot" > "$OS_FILE"
 
-# Top 50 most common open ports (on vulnerable devices)
-shodan stats --facets port:50 country:PY has_vuln:true > "$PORT_FILE"
+# Top 50 most common open ports (on vulnerable devices, excluding honeypots)
+shodan stats --facets port:50 "country:PY has_vuln:true -tag:honeypot" > "$PORT_FILE"
 
-# Top 50 ASNs (Autonomous System Numbers) (hosting vulnerable devices)
-shodan stats --facets asn:50 country:PY has_vuln:true > "$ASN_FILE"
+# Top 50 ASNs (Autonomous System Numbers) (hosting vulnerable devices, excluding honeypots)
+shodan stats --facets asn:50 "country:PY has_vuln:true -tag:honeypot" > "$ASN_FILE"
 
-# Top 50 HTTP components (on vulnerable devices)
-shodan stats --facets http.component:50 country:PY has_vuln:true > "$HTTP_COMPONENT_FILE"
+# Top 50 HTTP components (on vulnerable devices, excluding honeypots)
+shodan stats --facets http.component:50 "country:PY has_vuln:true -tag:honeypot" > "$HTTP_COMPONENT_FILE"
 
-# Top 50 HTTP component categories (on vulnerable devices)
-shodan stats --facets http.component_category:50 country:PY has_vuln:true > "$HTTP_COMPONENT_CATEGORY_FILE"
+# Top 50 HTTP component categories (on vulnerable devices, excluding honeypots)
+shodan stats --facets http.component_category:50 "country:PY has_vuln:true -tag:honeypot" > "$HTTP_COMPONENT_CATEGORY_FILE"
 
-# Top 50 SSL versions (on vulnerable devices)
-shodan stats --facets ssl.version:50 country:PY has_vuln:true > "$SSL_VERSION_FILE"
+# Top 50 SSL versions (on vulnerable devices, excluding honeypots)
+shodan stats --facets ssl.version:50 "country:PY has_vuln:true -tag:honeypot" > "$SSL_VERSION_FILE"
 
-# Count of devices with and without screenshots (that are vulnerable)
-shodan stats --facets has_screenshot:50 country:PY has_vuln:true > "$HAS_SCREENSHOT_FILE"
+# Count of devices with and without screenshots (that are vulnerable, excluding honeypots)
+shodan stats --facets has_screenshot:50 "country:PY has_vuln:true -tag:honeypot" > "$HAS_SCREENSHOT_FILE"
 
 # --- Step 1.5: Update Tracking Data ---
 echo "Updating tracking data..."
