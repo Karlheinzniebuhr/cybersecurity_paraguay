@@ -172,11 +172,12 @@ cat <<EOF > "$HTML_FILE"
             font-size: 14px;
             color: #0366d6; /* GitHub link blue */
             text-decoration: none;
+            z-index: 10;
         }
         .github-link:hover {
             text-decoration: underline;
         }
-        h1 { color: #2c3e50; }
+        h1 { color: #2c3e50; margin-top: 60px; padding-right: 120px; }
         h2 { color: #2980b9; }
         p { color: #34495e; line-height: 1.6; }
         pre {
