@@ -219,7 +219,13 @@ HAS_SCREENSHOT_CHART_HTML=$(generate_chart_html "$HAS_SCREENSHOT_TRACKING_CSV" "
 calculate_total() {
     local file="$1"
     if [[ -f "$file" ]]; then
-        awk 'NR > 1 && NF >= 2 { total += $NF } END { print total+0 }' "$file"
+        # Handle comma-separated numbers and sum the last column (excluding header)
+        awk 'BEGIN {total=0} 
+             NR > 1 && NF >= 2 { 
+                 gsub(/,/, "", $NF);  # Remove commas from numbers
+                 total += $NF 
+             } 
+             END {print total+0}' "$file"
     else
         echo "0"
     fi
