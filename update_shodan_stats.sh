@@ -526,6 +526,7 @@ EOF
 # --- Step 3: Push to GitHub Pages ---
 echo "[DEBUG] Changing to repo directory: $REPO_DIR"
 cd "$REPO_DIR"
+git remote set-url origin https://github.com/cibersegpy/cibersecpy.github.io
 git add index.html
 git commit -m "Update Shodan stats - $(date)"
 git push origin master # Please ensure this is your default branch

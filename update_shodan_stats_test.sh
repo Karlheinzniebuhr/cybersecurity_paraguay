@@ -486,6 +486,7 @@ EOF
 # --- Step 3: Push to GitHub Pages ---
 echo "[DEBUG] Changing to repo directory: $REPO_DIR"
 cd "$REPO_DIR"
+git remote set-url origin https://github.com/cibersegpy/cibersecpy.github.io
 echo "[DEBUG] Current directory: $(pwd)"
 echo "[DEBUG] Git remote -v:"
 git remote -v
