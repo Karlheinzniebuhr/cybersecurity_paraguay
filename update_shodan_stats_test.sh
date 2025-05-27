@@ -111,14 +111,19 @@ generate_chart_html() {
             exit
         }
         
+        # Handle case where all values are the same
         range = max - min
-        if (range == 0) range = 1
+        if (range == 0) range = 1  # Prevent division by zero
+        
+        # Ensure we show at least 7 days of history
+        shown_days = (count < 7) ? count : 7
+        start_index = (count > shown_days) ? count - shown_days : 0
         
         print "<div class=\"chart-container\">"
         print "  <div class=\"chart-title\">" title " - Últimos " count " días</div>"
         print "  <div class=\"chart\">"
         
-        for (i = 0; i < count; i++) {
+        for (i = start_index; i < count; i++) {
             height = ((values[i] - min) / range) * 80 + 10  # 10-90% height
             print "    <div class=\"chart-bar\" style=\"height: " height "%\" title=\"" dates[i] ": " values[i] "\"></div>"
         }
