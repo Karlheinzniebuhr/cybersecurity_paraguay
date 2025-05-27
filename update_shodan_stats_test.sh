@@ -130,45 +130,6 @@ generate_chart_html() {
     ' "$csv_file"
 }
 
-# --- Step 1: Skip Shodan Commands ---
-# Note: In production, these commands use honeypot filtering:
-# Honeypot filtering: Using -tag:honeypot within the search query
-# Additional filters that could be added if needed:
-# -port:2323 -port:23231 -port:2332 (exclude common honeypot ports)
-# -org:"University" -org:"Research" (exclude research institutions)
-# -hostname:honeypot -hostname:canary (exclude obvious honeypot hostnames)
-echo "[INFO] Skipping Shodan commands. Using existing output files in $OUTPUT_DIR."
-
-# --- Step 1.5: Update Tracking Data ---
-echo "[INFO] Updating tracking data..."
-
-# Calculate totals and update tracking CSVs
-ISP_TOTAL=$(calculate_total "$ISP_FILE")
-CITIES_TOTAL=$(calculate_total "$CITIES_FILE")
-VULNS_TOTAL=$(calculate_total "$VULNS_FILE")
-PRODUCT_TOTAL=$(calculate_total "$PRODUCT_FILE")
-OS_TOTAL=$(calculate_total "$OS_FILE")
-PORT_TOTAL=$(calculate_total "$PORT_FILE")
-ASN_TOTAL=$(calculate_total "$ASN_FILE")
-HTTP_COMPONENT_TOTAL=$(calculate_total "$HTTP_COMPONENT_FILE")
-HTTP_COMPONENT_CATEGORY_TOTAL=$(calculate_total "$HTTP_COMPONENT_CATEGORY_FILE")
-SSL_VERSION_TOTAL=$(calculate_total "$SSL_VERSION_FILE")
-HAS_SCREENSHOT_TOTAL=$(calculate_total "$HAS_SCREENSHOT_FILE")
-
-# Update tracking CSVs
-update_tracking_csv "$ISP_TRACKING_CSV" "$ISP_TOTAL"
-update_tracking_csv "$CITIES_TRACKING_CSV" "$CITIES_TOTAL"
-update_tracking_csv "$VULNS_TRACKING_CSV" "$VULNS_TOTAL"
-update_tracking_csv "$PRODUCT_TRACKING_CSV" "$PRODUCT_TOTAL"
-update_tracking_csv "$OS_TRACKING_CSV" "$OS_TOTAL"
-update_tracking_csv "$PORT_TRACKING_CSV" "$PORT_TOTAL"
-update_tracking_csv "$ASN_TRACKING_CSV" "$ASN_TOTAL"
-update_tracking_csv "$HTTP_COMPONENT_TRACKING_CSV" "$HTTP_COMPONENT_TOTAL"
-update_tracking_csv "$HTTP_COMPONENT_CATEGORY_TRACKING_CSV" "$HTTP_COMPONENT_CATEGORY_TOTAL"
-update_tracking_csv "$SSL_VERSION_TRACKING_CSV" "$SSL_VERSION_TOTAL"
-update_tracking_csv "$HAS_SCREENSHOT_TRACKING_CSV" "$HAS_SCREENSHOT_TOTAL"
-
-# --- Step 2: Generate HTML File ---
 # Helper function to convert shodan stats output to an HTML table
 # Takes the input file path as $1 and the column headers (e.g., "Proveedor|Dispositivos") as $2
 generate_html_table() {
@@ -242,6 +203,45 @@ generate_html_table() {
     ' "$input_file"
 }
 
+# --- Step 1: Skip Shodan Commands ---
+# Note: In production, these commands use honeypot filtering:
+# Honeypot filtering: Using -tag:honeypot within the search query
+# Additional filters that could be added if needed:
+# -port:2323 -port:23231 -port:2332 (exclude common honeypot ports)
+# -org:"University" -org:"Research" (exclude research institutions)
+# -hostname:honeypot -hostname:canary (exclude obvious honeypot hostnames)
+echo "[INFO] Skipping Shodan commands. Using existing output files in $OUTPUT_DIR."
+
+# --- Step 1.5: Update Tracking Data ---
+echo "[INFO] Updating tracking data..."
+
+# Calculate totals and update tracking CSVs
+ISP_TOTAL=$(calculate_total "$ISP_FILE")
+CITIES_TOTAL=$(calculate_total "$CITIES_FILE")
+VULNS_TOTAL=$(calculate_total "$VULNS_FILE")
+PRODUCT_TOTAL=$(calculate_total "$PRODUCT_FILE")
+OS_TOTAL=$(calculate_total "$OS_FILE")
+PORT_TOTAL=$(calculate_total "$PORT_FILE")
+ASN_TOTAL=$(calculate_total "$ASN_FILE")
+HTTP_COMPONENT_TOTAL=$(calculate_total "$HTTP_COMPONENT_FILE")
+HTTP_COMPONENT_CATEGORY_TOTAL=$(calculate_total "$HTTP_COMPONENT_CATEGORY_FILE")
+SSL_VERSION_TOTAL=$(calculate_total "$SSL_VERSION_FILE")
+HAS_SCREENSHOT_TOTAL=$(calculate_total "$HAS_SCREENSHOT_FILE")
+
+# Update tracking CSVs
+update_tracking_csv "$ISP_TRACKING_CSV" "$ISP_TOTAL"
+update_tracking_csv "$CITIES_TRACKING_CSV" "$CITIES_TOTAL"
+update_tracking_csv "$VULNS_TRACKING_CSV" "$VULNS_TOTAL"
+update_tracking_csv "$PRODUCT_TRACKING_CSV" "$PRODUCT_TOTAL"
+update_tracking_csv "$OS_TRACKING_CSV" "$OS_TOTAL"
+update_tracking_csv "$PORT_TRACKING_CSV" "$PORT_TOTAL"
+update_tracking_csv "$ASN_TRACKING_CSV" "$ASN_TOTAL"
+update_tracking_csv "$HTTP_COMPONENT_TRACKING_CSV" "$HTTP_COMPONENT_TOTAL"
+update_tracking_csv "$HTTP_COMPONENT_CATEGORY_TRACKING_CSV" "$HTTP_COMPONENT_CATEGORY_TOTAL"
+update_tracking_csv "$SSL_VERSION_TRACKING_CSV" "$SSL_VERSION_TOTAL"
+update_tracking_csv "$HAS_SCREENSHOT_TRACKING_CSV" "$HAS_SCREENSHOT_TOTAL"
+
+# --- Step 2: Generate HTML File ---
 # Generate HTML tables for each section
 ISP_TABLE_HTML=$(generate_html_table "$ISP_FILE" "Proveedor|Dispositivos Conectados")
 VULNS_TABLE_HTML=$(generate_html_table "$VULNS_FILE" "Vulnerabilidad (CVE)|Detecciones")

@@ -50,176 +50,7 @@ HTTP_COMPONENT_CATEGORY_TRACKING_CSV="$TRACKING_DIR/http_component_category_trac
 SSL_VERSION_TRACKING_CSV="$TRACKING_DIR/ssl_version_tracking.csv"
 HAS_SCREENSHOT_TRACKING_CSV="$TRACKING_DIR/has_screenshot_tracking.csv"
 
-# --- Step 1: Run Shodan Commands ---
-# These commands are derived from the X thread and the new requests
-# Honeypot filtering: Using -tag:honeypot to exclude known honeypots
-# Additional filters that could be added if needed:
-# -port:2323 -port:23231 -port:2332 (exclude common honeypot ports)
-# -org:"University" -org:"Research" (exclude research institutions)
-# -hostname:honeypot -hostname:canary (exclude obvious honeypot hostnames)
-echo "Running Shodan commands..."
-
-# Top 50 ISPs in Paraguay (hosting vulnerable devices, excluding honeypots)
-shodan stats --facets isp:50 "country:PY has_vuln:true -tag:honeypot" > "$ISP_FILE"
-
-# Top 50 cities with devices online (that are vulnerable, excluding honeypots)
-shodan stats --facets city:50 "country:PY has_vuln:true -tag:honeypot" > "$CITIES_FILE"
-
-# Top 50 vulnerabilities in Paraguay (excluding honeypots)
-shodan stats --facets vuln:50 "country:PY -tag:honeypot" > "$VULNS_FILE"
-
-# Top 50 products (that are vulnerable, excluding honeypots)
-shodan stats --facets product:50 "country:PY has_vuln:true -tag:honeypot" > "$PRODUCT_FILE"
-
-# Top 50 operating systems (on vulnerable devices, excluding honeypots)
-shodan stats --facets os:50 "country:PY has_vuln:true -tag:honeypot" > "$OS_FILE"
-
-# Top 50 most common open ports (on vulnerable devices, excluding honeypots)
-shodan stats --facets port:50 "country:PY has_vuln:true -tag:honeypot" > "$PORT_FILE"
-
-# Top 50 ASNs (Autonomous System Numbers) (hosting vulnerable devices, excluding honeypots)
-shodan stats --facets asn:50 "country:PY has_vuln:true -tag:honeypot" > "$ASN_FILE"
-
-# Top 50 HTTP components (on vulnerable devices, excluding honeypots)
-shodan stats --facets http.component:50 "country:PY has_vuln:true -tag:honeypot" > "$HTTP_COMPONENT_FILE"
-
-# Top 50 HTTP component categories (on vulnerable devices, excluding honeypots)
-shodan stats --facets http.component_category:50 "country:PY has_vuln:true -tag:honeypot" > "$HTTP_COMPONENT_CATEGORY_FILE"
-
-# Top 50 SSL versions (on vulnerable devices, excluding honeypots)
-shodan stats --facets ssl.version:50 "country:PY has_vuln:true -tag:honeypot" > "$SSL_VERSION_FILE"
-
-# Count of devices with and without screenshots (that are vulnerable, excluding honeypots)
-shodan stats --facets has_screenshot:50 "country:PY has_vuln:true -tag:honeypot" > "$HAS_SCREENSHOT_FILE"
-
-# --- Step 1.5: Update Tracking Data ---
-echo "Updating tracking data..."
-
-# Calculate totals and update tracking CSVs
-ISP_TOTAL=$(calculate_total "$ISP_FILE")
-CITIES_TOTAL=$(calculate_total "$CITIES_FILE")
-VULNS_TOTAL=$(calculate_total "$VULNS_FILE")
-PRODUCT_TOTAL=$(calculate_total "$PRODUCT_FILE")
-OS_TOTAL=$(calculate_total "$OS_FILE")
-PORT_TOTAL=$(calculate_total "$PORT_FILE")
-ASN_TOTAL=$(calculate_total "$ASN_FILE")
-HTTP_COMPONENT_TOTAL=$(calculate_total "$HTTP_COMPONENT_FILE")
-HTTP_COMPONENT_CATEGORY_TOTAL=$(calculate_total "$HTTP_COMPONENT_CATEGORY_FILE")
-SSL_VERSION_TOTAL=$(calculate_total "$SSL_VERSION_FILE")
-HAS_SCREENSHOT_TOTAL=$(calculate_total "$HAS_SCREENSHOT_FILE")
-
-# Update tracking CSVs
-update_tracking_csv "$ISP_TRACKING_CSV" "$ISP_TOTAL"
-update_tracking_csv "$CITIES_TRACKING_CSV" "$CITIES_TOTAL"
-update_tracking_csv "$VULNS_TRACKING_CSV" "$VULNS_TOTAL"
-update_tracking_csv "$PRODUCT_TRACKING_CSV" "$PRODUCT_TOTAL"
-update_tracking_csv "$OS_TRACKING_CSV" "$OS_TOTAL"
-update_tracking_csv "$PORT_TRACKING_CSV" "$PORT_TOTAL"
-update_tracking_csv "$ASN_TRACKING_CSV" "$ASN_TOTAL"
-update_tracking_csv "$HTTP_COMPONENT_TRACKING_CSV" "$HTTP_COMPONENT_TOTAL"
-update_tracking_csv "$HTTP_COMPONENT_CATEGORY_TRACKING_CSV" "$HTTP_COMPONENT_CATEGORY_TOTAL"
-update_tracking_csv "$SSL_VERSION_TRACKING_CSV" "$SSL_VERSION_TOTAL"
-update_tracking_csv "$HAS_SCREENSHOT_TRACKING_CSV" "$HAS_SCREENSHOT_TOTAL"
-
-# --- Step 2: Generate HTML File ---
-# Helper function to convert shodan stats output to an HTML table
-# Takes the input file path as $1 and the column headers (e.g., "Proveedor|Dispositivos") as $2
-generate_html_table() {
-    local input_file="$1"
-    local headers_str="$2"
-    local header1 header2
-    IFS='|' read -r header1 header2 <<< "$headers_str"
-    
-    # AWK script to generate table rows.
-    # If it's the vulnerability table (based on h1) and the first field looks like a CVE ID,
-    # it creates a hyperlink. Otherwise, it uses the original formatting.
-    awk -v h1="$header1" -v h2="$header2" '
-    BEGIN {
-        print "<table class=\"stats-table\">"
-        print "  <thead>"
-        print "    <tr>"
-        printf "      <th>%s</th>\n", h1
-        printf "      <th>%s</th>\n", h2
-        print "    </tr>"
-        print "  </thead>"
-        print "  <tbody>"
-    }
-    NR > 1 && NF >= 2 { # Process lines after header, ensuring at least 2 fields
-        count = $NF;
-        name_output_final = "";
-
-        # Extract first field and convert to uppercase for comparison
-        first_field = toupper($1);
-        gsub(/[[:space:]]+$/, "", first_field);  # Remove trailing spaces
-
-        if (first_field ~ /^CVE-[0-9][0-9][0-9][0-9]-[0-9]+$/) {
-            # HTML-escape the CVE ID
-            gsub(/&/, "&amp;", first_field);
-            gsub(/</, "&lt;", first_field);
-            gsub(/>/, "&gt;", first_field);
-
-            # Create the hyperlink
-            name_output_final = sprintf("<a href=\"https://www.cve.org/CVERecord?id=%s\" target=\"_blank\" rel=\"noopener noreferrer\">%s</a>", first_field, first_field);
-            
-            # If there are descriptive parts after CVE ID and before count
-            if (NF > 2) {
-                description_part = "";
-                for (i = 2; i < NF; i++) {
-                    description_part = description_part (description_part == "" ? "" : " ") $i;
-                }
-                # HTML-escape the description part
-                gsub(/&/, "&amp;", description_part);
-                gsub(/</, "&lt;", description_part);
-                gsub(/>/, "&gt;", description_part);
-                name_output_final = name_output_final " " description_part;
-            }
-        } else {
-            # Original logic for other tables
-            temp_name_part = $1;
-            for (i = 2; i < NF; i++) {
-                temp_name_part = temp_name_part " " $i;
-            }
-            # HTML-escape the name part
-            gsub(/&/, "&amp;", temp_name_part);
-            gsub(/</, "&lt;", temp_name_part);
-            gsub(/>/, "&gt;", temp_name_part);
-            name_output_final = temp_name_part;
-        }
-        printf "    <tr><td>%s</td><td>%s</td></tr>\n", name_output_final, count;
-    }
-    END {
-        print "  </tbody>"
-        print "</table>"
-    }
-    ' "$input_file"
-}
-
-# Generate HTML tables for each section
-ISP_TABLE_HTML=$(generate_html_table "$ISP_FILE" "Proveedor|Dispositivos Conectados")
-VULNS_TABLE_HTML=$(generate_html_table "$VULNS_FILE" "Vulnerabilidad (CVE)|Detecciones")
-CITIES_TABLE_HTML=$(generate_html_table "$CITIES_FILE" "Ciudad|Dispositivos Conectados")
-PRODUCT_TABLE_HTML=$(generate_html_table "$PRODUCT_FILE" "Producto|Instancias")
-OS_TABLE_HTML=$(generate_html_table "$OS_FILE" "Sistema Operativo|Instancias")
-PORT_TABLE_HTML=$(generate_html_table "$PORT_FILE" "Puerto|Detecciones")
-ASN_TABLE_HTML=$(generate_html_table "$ASN_FILE" "ASN (Nombre)|Dispositivos")
-HTTP_COMPONENT_TABLE_HTML=$(generate_html_table "$HTTP_COMPONENT_FILE" "Componente HTTP|Instancias")
-HTTP_COMPONENT_CATEGORY_TABLE_HTML=$(generate_html_table "$HTTP_COMPONENT_CATEGORY_FILE" "Categoría Componente HTTP|Instancias")
-SSL_VERSION_TABLE_HTML=$(generate_html_table "$SSL_VERSION_FILE" "Versión SSL/TLS|Detecciones")
-HAS_SCREENSHOT_TABLE_HTML=$(generate_html_table "$HAS_SCREENSHOT_FILE" "Tiene Captura|Cantidad")
-
-# Generate chart HTML for each section
-VULNS_CHART_HTML=$(generate_chart_html "$VULNS_TRACKING_CSV" "Vulnerabilidades")
-ISP_CHART_HTML=$(generate_chart_html "$ISP_TRACKING_CSV" "Proveedores ISP")
-CITIES_CHART_HTML=$(generate_chart_html "$CITIES_TRACKING_CSV" "Ciudades")
-PRODUCT_CHART_HTML=$(generate_chart_html "$PRODUCT_TRACKING_CSV" "Productos")
-OS_CHART_HTML=$(generate_chart_html "$OS_TRACKING_CSV" "Sistemas Operativos")
-PORT_CHART_HTML=$(generate_chart_html "$PORT_TRACKING_CSV" "Puertos")
-ASN_CHART_HTML=$(generate_chart_html "$ASN_TRACKING_CSV" "ASNs")
-HTTP_COMPONENT_CHART_HTML=$(generate_chart_html "$HTTP_COMPONENT_TRACKING_CSV" "Componentes HTTP")
-HTTP_COMPONENT_CATEGORY_CHART_HTML=$(generate_chart_html "$HTTP_COMPONENT_CATEGORY_TRACKING_CSV" "Categorías HTTP")
-SSL_VERSION_CHART_HTML=$(generate_chart_html "$SSL_VERSION_TRACKING_CSV" "Versiones SSL/TLS")
-HAS_SCREENSHOT_CHART_HTML=$(generate_chart_html "$HAS_SCREENSHOT_TRACKING_CSV" "Capturas de Pantalla")
-
+# --- Function Definitions ---
 # Function to calculate total from a shodan stats file
 calculate_total() {
     local file="$1"
@@ -304,6 +135,176 @@ generate_chart_html() {
     }
     ' "$csv_file"
 }
+
+# Helper function to convert shodan stats output to an HTML table
+# Takes the input file path as $1 and the column headers (e.g., "Proveedor|Dispositivos") as $2
+generate_html_table() {
+    local input_file="$1"
+    local headers_str="$2"
+    local header1 header2
+    IFS='|' read -r header1 header2 <<< "$headers_str"
+    
+    # AWK script to generate table rows.
+    # If it's the vulnerability table (based on h1) and the first field looks like a CVE ID,
+    # it creates a hyperlink. Otherwise, it uses the original formatting.
+    awk -v h1="$header1" -v h2="$header2" '
+    BEGIN {
+        print "<table class=\"stats-table\">"
+        print "  <thead>"
+        print "    <tr>"
+        printf "      <th>%s</th>\n", h1
+        printf "      <th>%s</th>\n", h2
+        print "    </tr>"
+        print "  </thead>"
+        print "  <tbody>"
+    }
+    NR > 1 && NF >= 2 { # Process lines after header, ensuring at least 2 fields
+        count = $NF;
+        name_output_final = "";
+
+        # Extract first field and convert to uppercase for comparison
+        first_field = toupper($1);
+        gsub(/[[:space:]]+$/, "", first_field);  # Remove trailing spaces
+
+        if (first_field ~ /^CVE-[0-9][0-9][0-9][0-9]-[0-9]+$/) {
+            # HTML-escape the CVE ID
+            gsub(/&/, "&amp;", first_field);
+            gsub(/</, "&lt;", first_field);
+            gsub(/>/, "&gt;", first_field);
+
+            # Create the hyperlink
+            name_output_final = sprintf("<a href=\"https://www.cve.org/CVERecord?id=%s\" target=\"_blank\" rel=\"noopener noreferrer\">%s</a>", first_field, first_field);
+            
+            # If there are descriptive parts after CVE ID and before count
+            if (NF > 2) {
+                description_part = "";
+                for (i = 2; i < NF; i++) {
+                    description_part = description_part (description_part == "" ? "" : " ") $i;
+                }
+                # HTML-escape the description part
+                gsub(/&/, "&amp;", description_part);
+                gsub(/</, "&lt;", description_part);
+                gsub(/>/, "&gt;", description_part);
+                name_output_final = name_output_final " " description_part;
+            }
+        } else {
+            # Original logic for other tables
+            temp_name_part = $1;
+            for (i = 2; i < NF; i++) {
+                temp_name_part = temp_name_part " " $i;
+            }
+            # HTML-escape the name part
+            gsub(/&/, "&amp;", temp_name_part);
+            gsub(/</, "&lt;", temp_name_part);
+            gsub(/>/, "&gt;", temp_name_part);
+            name_output_final = temp_name_part;
+        }
+        printf "    <tr><td>%s</td><td>%s</td></tr>\n", name_output_final, count;
+    }
+    END {
+        print "  </tbody>"
+        print "</table>"
+    }
+    ' "$input_file"
+}
+
+# --- Step 1: Run Shodan Commands ---
+# These commands are derived from the X thread and the new requests
+# Honeypot filtering: Using -tag:honeypot to exclude known honeypots
+# Additional filters that could be added if needed:
+# -port:2323 -port:23231 -port:2332 (exclude common honeypot ports)
+# -org:"University" -org:"Research" (exclude research institutions)
+# -hostname:honeypot -hostname:canary (exclude obvious honeypot hostnames)
+echo "Running Shodan commands..."
+
+# Top 50 ISPs in Paraguay (hosting vulnerable devices, excluding honeypots)
+shodan stats --facets isp:50 "country:PY has_vuln:true -tag:honeypot" > "$ISP_FILE"
+
+# Top 50 cities with devices online (that are vulnerable, excluding honeypots)
+shodan stats --facets city:50 "country:PY has_vuln:true -tag:honeypot" > "$CITIES_FILE"
+
+# Top 50 vulnerabilities in Paraguay (excluding honeypots)
+shodan stats --facets vuln:50 "country:PY -tag:honeypot" > "$VULNS_FILE"
+
+# Top 50 products (that are vulnerable, excluding honeypots)
+shodan stats --facets product:50 "country:PY has_vuln:true -tag:honeypot" > "$PRODUCT_FILE"
+
+# Top 50 operating systems (on vulnerable devices, excluding honeypots)
+shodan stats --facets os:50 "country:PY has_vuln:true -tag:honeypot" > "$OS_FILE"
+
+# Top 50 most common open ports (on vulnerable devices, excluding honeypots)
+shodan stats --facets port:50 "country:PY has_vuln:true -tag:honeypot" > "$PORT_FILE"
+
+# Top 50 ASNs (Autonomous System Numbers) (hosting vulnerable devices, excluding honeypots)
+shodan stats --facets asn:50 "country:PY has_vuln:true -tag:honeypot" > "$ASN_FILE"
+
+# Top 50 HTTP components (on vulnerable devices, excluding honeypots)
+shodan stats --facets http.component:50 "country:PY has_vuln:true -tag:honeypot" > "$HTTP_COMPONENT_FILE"
+
+# Top 50 HTTP component categories (on vulnerable devices, excluding honeypots)
+shodan stats --facets http.component_category:50 "country:PY has_vuln:true -tag:honeypot" > "$HTTP_COMPONENT_CATEGORY_FILE"
+
+# Top 50 SSL versions (on vulnerable devices, excluding honeypots)
+shodan stats --facets ssl.version:50 "country:PY has_vuln:true -tag:honeypot" > "$SSL_VERSION_FILE"
+
+# Count of devices with and without screenshots (that are vulnerable, excluding honeypots)
+shodan stats --facets has_screenshot:50 "country:PY has_vuln:true -tag:honeypot" > "$HAS_SCREENSHOT_FILE"
+
+# --- Step 1.5: Update Tracking Data ---
+echo "Updating tracking data..."
+
+# Calculate totals and update tracking CSVs
+ISP_TOTAL=$(calculate_total "$ISP_FILE")
+CITIES_TOTAL=$(calculate_total "$CITIES_FILE")
+VULNS_TOTAL=$(calculate_total "$VULNS_FILE")
+PRODUCT_TOTAL=$(calculate_total "$PRODUCT_FILE")
+OS_TOTAL=$(calculate_total "$OS_FILE")
+PORT_TOTAL=$(calculate_total "$PORT_FILE")
+ASN_TOTAL=$(calculate_total "$ASN_FILE")
+HTTP_COMPONENT_TOTAL=$(calculate_total "$HTTP_COMPONENT_FILE")
+HTTP_COMPONENT_CATEGORY_TOTAL=$(calculate_total "$HTTP_COMPONENT_CATEGORY_FILE")
+SSL_VERSION_TOTAL=$(calculate_total "$SSL_VERSION_FILE")
+HAS_SCREENSHOT_TOTAL=$(calculate_total "$HAS_SCREENSHOT_FILE")
+
+# Update tracking CSVs
+update_tracking_csv "$ISP_TRACKING_CSV" "$ISP_TOTAL"
+update_tracking_csv "$CITIES_TRACKING_CSV" "$CITIES_TOTAL"
+update_tracking_csv "$VULNS_TRACKING_CSV" "$VULNS_TOTAL"
+update_tracking_csv "$PRODUCT_TRACKING_CSV" "$PRODUCT_TOTAL"
+update_tracking_csv "$OS_TRACKING_CSV" "$OS_TOTAL"
+update_tracking_csv "$PORT_TRACKING_CSV" "$PORT_TOTAL"
+update_tracking_csv "$ASN_TRACKING_CSV" "$ASN_TOTAL"
+update_tracking_csv "$HTTP_COMPONENT_TRACKING_CSV" "$HTTP_COMPONENT_TOTAL"
+update_tracking_csv "$HTTP_COMPONENT_CATEGORY_TRACKING_CSV" "$HTTP_COMPONENT_CATEGORY_TOTAL"
+update_tracking_csv "$SSL_VERSION_TRACKING_CSV" "$SSL_VERSION_TOTAL"
+update_tracking_csv "$HAS_SCREENSHOT_TRACKING_CSV" "$HAS_SCREENSHOT_TOTAL"
+
+# --- Step 2: Generate HTML File ---
+# Generate HTML tables for each section
+ISP_TABLE_HTML=$(generate_html_table "$ISP_FILE" "Proveedor|Dispositivos Conectados")
+VULNS_TABLE_HTML=$(generate_html_table "$VULNS_FILE" "Vulnerabilidad (CVE)|Detecciones")
+CITIES_TABLE_HTML=$(generate_html_table "$CITIES_FILE" "Ciudad|Dispositivos Conectados")
+PRODUCT_TABLE_HTML=$(generate_html_table "$PRODUCT_FILE" "Producto|Instancias")
+OS_TABLE_HTML=$(generate_html_table "$OS_FILE" "Sistema Operativo|Instancias")
+PORT_TABLE_HTML=$(generate_html_table "$PORT_FILE" "Puerto|Detecciones")
+ASN_TABLE_HTML=$(generate_html_table "$ASN_FILE" "ASN (Nombre)|Dispositivos")
+HTTP_COMPONENT_TABLE_HTML=$(generate_html_table "$HTTP_COMPONENT_FILE" "Componente HTTP|Instancias")
+HTTP_COMPONENT_CATEGORY_TABLE_HTML=$(generate_html_table "$HTTP_COMPONENT_CATEGORY_FILE" "Categoría Componente HTTP|Instancias")
+SSL_VERSION_TABLE_HTML=$(generate_html_table "$SSL_VERSION_FILE" "Versión SSL/TLS|Detecciones")
+HAS_SCREENSHOT_TABLE_HTML=$(generate_html_table "$HAS_SCREENSHOT_FILE" "Tiene Captura|Cantidad")
+
+# Generate chart HTML for each section
+VULNS_CHART_HTML=$(generate_chart_html "$VULNS_TRACKING_CSV" "Vulnerabilidades")
+ISP_CHART_HTML=$(generate_chart_html "$ISP_TRACKING_CSV" "Proveedores ISP")
+CITIES_CHART_HTML=$(generate_chart_html "$CITIES_TRACKING_CSV" "Ciudades")
+PRODUCT_CHART_HTML=$(generate_chart_html "$PRODUCT_TRACKING_CSV" "Productos")
+OS_CHART_HTML=$(generate_chart_html "$OS_TRACKING_CSV" "Sistemas Operativos")
+PORT_CHART_HTML=$(generate_chart_html "$PORT_TRACKING_CSV" "Puertos")
+ASN_CHART_HTML=$(generate_chart_html "$ASN_TRACKING_CSV" "ASNs")
+HTTP_COMPONENT_CHART_HTML=$(generate_chart_html "$HTTP_COMPONENT_TRACKING_CSV" "Componentes HTTP")
+HTTP_COMPONENT_CATEGORY_CHART_HTML=$(generate_chart_html "$HTTP_COMPONENT_CATEGORY_TRACKING_CSV" "Categorías HTTP")
+SSL_VERSION_CHART_HTML=$(generate_chart_html "$SSL_VERSION_TRACKING_CSV" "Versiones SSL/TLS")
+HAS_SCREENSHOT_CHART_HTML=$(generate_chart_html "$HAS_SCREENSHOT_TRACKING_CSV" "Capturas de Pantalla")
 
 cat <<EOF > "$HTML_FILE"
 <!DOCTYPE html>
